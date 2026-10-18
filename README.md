@@ -91,6 +91,7 @@ npm install
 | `npm run test:run` | Runs all Vitest unit and component tests once |
 | `npm run test:e2e` | Runs Playwright browser end-to-end test suite |
 | `npm run check` | Runs lint, typecheck, and unit/component tests in sequence |
+| `npm run verify:build` | Verifies production HTML asset paths match `/JotJSON/assets/` and exist in `dist` |
 
 ---
 
@@ -100,14 +101,14 @@ npm install
 
 JotJSON includes ready-to-use GitHub Actions workflows under `.github/workflows/`:
 - **`ci.yml`**: Runs linting, type checks, unit tests, and production build on pull requests and pushes to `main`.
-- **`pages.yml`**: Automatically builds and deploys the static application to GitHub Pages on pushes to `main`.
+- **`pages.yml`**: Automatically builds, verifies, and deploys the static application to GitHub Pages on pushes to `main`.
 
 #### Enabling GitHub Pages on your repository:
-1. Push this repository to GitHub under your user/organization account.
+1. Push this repository to GitHub under your user or organization account (`https://github.com/Hafiz-Hamza-Liaqat/JotJSON`).
 2. In your repository on GitHub, navigate to **Settings** > **Pages**.
 3. Under **Build and deployment** > **Source**, choose **GitHub Actions**.
-4. The `.github/workflows/pages.yml` workflow will trigger on the next push or manual dispatch.
-5. If deploying under a custom repository name other than `jotjson`, adjust the `BASE_PATH` environment variable in `.github/workflows/pages.yml` or set `BASE_PATH=/<repo-name>/` in the repository settings.
+4. The `.github/workflows/pages.yml` workflow will trigger automatically on pushes to `main` (or manual dispatch).
+5. **Case-Sensitive Base Path:** GitHub Pages URLs are case-sensitive. Because this repository is named `JotJSON`, `.github/workflows/pages.yml` builds with `BASE_PATH: /JotJSON/` and verifies asset links point to `/JotJSON/assets/...` matching `https://hafiz-hamza-liaqat.github.io/JotJSON/`. If deploying under a different repository name or casing, update `BASE_PATH` in `.github/workflows/pages.yml` to match your exact `/<Repository-Name>/`.
 
 ### Vercel / Netlify / Static Hosts
 
