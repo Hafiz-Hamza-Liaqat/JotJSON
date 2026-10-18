@@ -1,16 +1,23 @@
 # JotJSON
 
-> **Format. Inspect. Compare.**  
-> Version: 1.0.0  
-> License: MIT
+> **Learn JSON through play, practice, and discovery. Plus professional developer formatting, inspection, and comparison.**  
+> Version: 2.0.0  
+> License: MIT  
+> Live App: [https://hafiz-hamza-liaqat.github.io/JotJSON/](https://hafiz-hamza-liaqat.github.io/JotJSON/)
 
-JotJSON is a fast, local-first developer toolkit designed for validating, formatting, comparing, and searching JSON documents entirely within the browser. It runs with zero backend, zero registration, and zero third-party telemetry or cloud APIs. All parsing and operations execute in client memory, ensuring sensitive data, API payloads, configurations, and tokens never leave your machine.
+JotJSON is a fast, local-first web application featuring two dedicated experiences:
+1. **Playground:** A zero-backend, zero-telemetry developer toolkit for strictly validating, formatting, diffing, and searching JSON documents entirely in the browser.
+2. **Learn & Play (JotJSON PlayLab):** An interactive, gamified learning laboratory designed for students and beginners, featuring Byte the Mascot, guided lessons, syntax debugging puzzles, collectible achievement stickers, and an idempotent XP progression system.
+
+All processing, parsing, and operations execute in client memory with zero server telemetry. Sensitive payloads and documents never leave your machine.
 
 ---
 
-## Features
+## Experiences Overview
 
-### Workspace A: Format & Validate (Default)
+### Mode 1: Playground (Developer Utilities)
+
+#### Workspace A: Format & Validate
 - **Strict JSON Validation:** Validates standard RFC 8259 JSON, rejecting trailing commas, comments, and unquoted/single-quoted keys. Root primitives (`true`, `false`, `null`, numbers, strings) are supported.
 - **Diagnostics with Exact Positions:** Reports 1-based line and column diagnostics along with character offsets for precise troubleshooting.
 - **Visual Error Highlighting:** Highlighting directly in the CodeMirror 6 editor gutter and error lines, automatically scrolling to the error location.
@@ -19,24 +26,66 @@ JotJSON is a fast, local-first developer toolkit designed for validating, format
 - **Live UTF-8 Document Statistics:** Computes true UTF-8 byte length (not UTF-16 code units), line count, total nested object key count, and maximum nesting depth.
 - **Stale State Management:** When input is edited after an operation, output and statistics are flagged as stale until re-run.
 
-### Workspace B: Compare JSON
+#### Workspace B: Compare JSON
 - **Structural Diff Engine:** Compares two independently editable JSON documents structurally, ignoring object-key order and formatting whitespace differences.
 - **Difference Categories:** Highlights added properties, removed properties, and changed values with clear badges.
 - **Arbitrary Numeric Precision:** Handles arbitrarily large numbers (beyond JavaScript's `Number.MAX_SAFE_INTEGER`, such as `9007199254740993`) without float precision loss. Normalizes decimal equivalents (e.g. `1`, `1.0`, `1e0`) without destructive type coercion.
 - **Unambiguous JSONPath Locations:** Generates safe JSONPath strings (e.g. `$["profile"]["display.name"]`, `$["items"][0]`) escaping dots, quotes, and special characters.
 - **Copy Utilities:** One-click copy for difference paths, original values, and modified values.
 
-### Workspace C: Search JSON
+#### Workspace C: Search JSON
 - **Deep Nested Search:** Traverses arbitrary structures to search object keys, string values, numeric tokens, booleans, and nulls.
 - **Flexible Scope:** Search keys only, primitive values only, or both simultaneously.
 - **Partial & Case-Insensitive Matching:** Matches sub-strings efficiently without requiring explicit quote characters for strings.
 - **Display Limit & Safety:** Caps displayed UI items at 100 matches while reporting the true total match count, preventing DOM rendering freezes on huge payloads.
 
-### Privacy & Data Integrity
-- **100% Client-Side:** No remote servers, authentication, databases, or AI APIs.
-- **Zero Content Persistence:** JSON documents are strictly stored in component memory during your active session. They are never written to `localStorage`, `sessionStorage`, or `IndexedDB`.
-- **Saved Theme Preference:** The only value persisted to `localStorage` is your theme toggle (`dark` or `light`).
-- **5 MiB Safety Limit:** Enforces an application-level document size limit (5 MiB) to preserve responsive browser performance.
+---
+
+### Mode 2: Learn & Play (JotJSON PlayLab)
+
+#### Byte the Mascot
+- Pure inline SVG and CSS animated mascot with 5 distinct emotional states: `idle`, `happy`, `thinking`, `detective`, and `champion`.
+- Contextual speech bubble offering friendly encouragements, gentle guidance, and clear explanations.
+- Respects `prefers-reduced-motion` to keep animations comfortable and accessible.
+
+#### Guided Lesson 1: JSON Basics — Build Your First Object
+- Step-by-step curriculum with 6 interactive steps:
+  1. **What is JSON?** — Origin, purpose, and universal network exchange format.
+  2. **Objects & Key/Value Pairs** — Curly braces `{ }`, colon separators, and naming conventions.
+  3. **Strings vs Numbers** — Why quotation marks define strings and distinguish `"25"` from `25`.
+  4. **Booleans and Null** — Reserved lowercase keywords `true`, `false`, and `null`.
+  5. **Arrays & Nested Data** — Square brackets `[ ]` and complex hierarchical object trees.
+  6. **Strict Syntax Rules** — Mastering RFC 8259 restrictions (no single quotes, no trailing commas).
+- Immediate interactive feedback, multi-tier hints, and reward animations upon completion (+100 XP).
+
+#### Syntax Detective Mini-Game
+- 5 authored real-world JSON debugging cases:
+  1. *The Unquoted String* — Fixing unquoted text in property values.
+  2. *The Trailing Comma Trap* — Catching trailing commas after the final property.
+  3. *The Disconnected Properties* — Resolving missing property separator commas.
+  4. *The Bracket Mystery* — Fixing mismatched array brackets and object braces.
+  5. *The Single Quote Intruder* — Converting illegal JavaScript single quotes into strict double quotes.
+- Live CodeMirror 6 editor with error line markers.
+- Intelligent evaluation: validates syntax errors, performs structural comparison against expected solutions, and verifies objective completion.
+- Multi-tier clue system with progressive hints.
+- Case solved celebration bursts and progression tracking (+25 XP per solved case).
+
+#### Sticker Book & Achievements
+- 5 unique collectible badges:
+  - 🐣 **JSON Beginner:** Complete Lesson 1 ("JSON Basics").
+  - 🔎 **Bug Hunter:** Solve your first Syntax Detective case.
+  - 🧩 **Structure Explorer:** Complete the Arrays & Nested Data challenge.
+  - ✨ **Perfect Syntax:** Solve a detective case on the very first try without hints.
+  - 🏆 **JSON Champion:** Complete Lesson 1 and solve all 5 detective cases.
+- Celebratory unlock modal with confetti burst.
+- Grid gallery displaying unlocked vs locked states with clear unlock requirements.
+
+#### Progress & Privacy Architecture
+- **Offline Local Persistence:** State stored under versioned key `jotjson-learning-progress:v2` in `localStorage`.
+- **Zero Content Persistence:** User-entered JSON documents are NEVER written to storage or transmitted.
+- **Graceful Corruption Recovery:** Schema-validated state recovery that resets gracefully to defaults if storage is modified or corrupt.
+- **Idempotent Rewards:** Completing a case or lesson multiple times never duplicates XP rewards.
+- **Complete Reset Option:** Confirmation-protected progress reset allows restarting the curriculum cleanly.
 
 ---
 
@@ -44,31 +93,20 @@ JotJSON is a fast, local-first developer toolkit designed for validating, format
 
 - **Framework:** React 19 + TypeScript (strict mode enabled)
 - **Bundler & Build Tool:** Vite 8
-- **Styling:** Tailwind CSS 4 with custom dark mode variants and design tokens
+- **Styling:** Tailwind CSS 4 with custom dark/light mode variants and responsive design tokens
 - **Code Editor:** CodeMirror 6 via `@uiw/react-codemirror` and `@codemirror/lang-json`
 - **JSON Parsing & AST:** `jsonc-parser` (configured strictly with `disallowComments: true` and `allowTrailingComma: false`)
 - **Icons:** Lucide React
-- **Unit & Component Tests:** Vitest 5 + React Testing Library + `@testing-library/jest-dom` + `jsdom`
-- **End-to-End Tests:** Playwright 1.64
+- **Unit & Component Tests:** Vitest 5 + React Testing Library + `@testing-library/jest-dom` + `jsdom` (104 tests across 14 suites)
+- **End-to-End Tests:** Playwright 1.64 across Desktop & Mobile viewports (23 tests)
 - **Linters:** Oxlint + ESLint 10
-
----
-
-## Screenshots
-
-To capture real screenshots of the application:
-1. Run the development server with `npm run dev` and navigate to `http://localhost:5173`.
-2. Capture the default **Format & Validate** workspace after clicking **Load sample** and **Format**.
-3. Capture the **Compare JSON** workspace with active diff results.
-4. Capture the **Search JSON** workspace with query results.
-5. Save captured images into `src/assets/` or `docs/screenshots/`.
 
 ---
 
 ## Installation & Setup
 
 ### Prerequisites
-- **Node.js:** LTS version 20.x or 22.x recommended (verified with Node.js 22).
+- **Node.js:** LTS version 20.x or 22.x recommended (tested on Node.js 22).
 - **npm:** version 10.x or later.
 
 ### Install dependencies
@@ -88,8 +126,8 @@ npm install
 | `npm run lint` | Runs Oxlint and ESLint across the codebase |
 | `npm run typecheck` | Validates TypeScript types across source files and tests without emitting files |
 | `npm test` | Starts Vitest in interactive watch mode |
-| `npm run test:run` | Runs all Vitest unit and component tests once |
-| `npm run test:e2e` | Runs Playwright browser end-to-end test suite |
+| `npm run test:run` | Runs all Vitest unit and component tests once (104 tests) |
+| `npm run test:e2e` | Runs Playwright browser end-to-end test suite (23 tests) |
 | `npm run check` | Runs lint, typecheck, and unit/component tests in sequence |
 | `npm run verify:build` | Verifies production HTML asset paths match `/JotJSON/assets/` and exist in `dist` |
 
@@ -101,37 +139,13 @@ npm install
 
 JotJSON includes ready-to-use GitHub Actions workflows under `.github/workflows/`:
 - **`ci.yml`**: Runs linting, type checks, unit tests, and production build on pull requests and pushes to `main`.
-- **`pages.yml`**: Automatically builds, verifies, and deploys the static application to GitHub Pages on pushes to `main`.
+- **`pages.yml`**: Automatically builds with `BASE_PATH: /JotJSON/`, verifies asset paths with `scripts/verify-build.mjs`, and deploys to GitHub Pages on pushes to `main`.
 
-#### Enabling GitHub Pages on your repository:
-1. Push this repository to GitHub under your user or organization account (`https://github.com/Hafiz-Hamza-Liaqat/JotJSON`).
-2. In your repository on GitHub, navigate to **Settings** > **Pages**.
-3. Under **Build and deployment** > **Source**, choose **GitHub Actions**.
-4. The `.github/workflows/pages.yml` workflow will trigger automatically on pushes to `main` (or manual dispatch).
-5. **Case-Sensitive Base Path:** GitHub Pages URLs are case-sensitive. Because this repository is named `JotJSON`, `.github/workflows/pages.yml` builds with `BASE_PATH: /JotJSON/` and verifies asset links point to `/JotJSON/assets/...` matching `https://hafiz-hamza-liaqat.github.io/JotJSON/`. If deploying under a different repository name or casing, update `BASE_PATH` in `.github/workflows/pages.yml` to match your exact `/<Repository-Name>/`.
-
-### Vercel / Netlify / Static Hosts
-
-Because JotJSON is a static single-page application (SPA), it can be deployed to any static host:
-- **Build Command:** `npm run build`
-- **Output Directory:** `dist`
-- **Install Command:** `npm install`
-- No serverless functions or environment secrets are required.
-
----
-
-## JSON Processing & Data Integrity Details
-
-1. **Large Number Precision:** Standard `JSON.parse` converts numbers to 64-bit IEEE 754 floating-point values, which rounds integers exceeding $2^{53} - 1$ (e.g. `9007199254740993` becomes `9007199254740992`). JotJSON extracts raw numeric tokens from the syntax tree and normalizes signs, digits, and exponents algebraically, comparing exact numeric identity without precision loss.
-2. **Safe Whitespace Minification:** Rather than using regular expressions that could corrupt spaces or escaped quotes inside strings, JotJSON uses a token-level scanner to isolate trivia and retain string literals intact.
-3. **Escaped Keys in JSONPath:** Property names with spaces, dots, or symbols are enclosed in bracketed strings (e.g. `$["key.with.dots"]`), ensuring generated JSONPaths remain valid and unambiguous.
-
----
-
-## Limitations
-
-- **File Size Limit:** An application-level limit of 5 MiB per file is enforced. Documents larger than 5 MiB are rejected before parsing to prevent locking the browser's UI thread.
-- **Strict JSON Standard:** JSON with comments (JSONC), trailing commas, unquoted keys, or single quotes is flagged as invalid syntax by design.
+#### Enabling GitHub Pages:
+1. In your GitHub repository, navigate to **Settings** > **Pages**.
+2. Under **Build and deployment** > **Source**, choose **GitHub Actions**.
+3. Pushes to `main` will trigger build, verification, and deployment to `https://hafiz-hamza-liaqat.github.io/JotJSON/`.
+4. **Case-Sensitive Base Path:** The repository name `JotJSON` requires asset links to match `/JotJSON/assets/...`. `pages.yml` and `scripts/verify-build.mjs` ensure the generated `dist/index.html` matches this exact casing.
 
 ---
 
@@ -141,49 +155,62 @@ Because JotJSON is a static single-page application (SPA), it can be deployed to
 jotjson/
 ├── .github/
 │   └── workflows/
-│       ├── ci.yml            # CI validation workflow
-│       └── pages.yml         # GitHub Pages static deploy workflow
+│       ├── ci.yml               # CI validation workflow (lint, typecheck, tests, build)
+│       └── pages.yml            # GitHub Pages deployment workflow
 ├── public/
-│   └── favicon.svg           # Application favicon
+│   └── favicon.svg              # Application favicon
+├── scripts/
+│   └── verify-build.mjs         # Build asset path verification
 ├── src/
 │   ├── app/
-│   │   └── App.tsx           # Main workspace orchestration & shell
-│   ├── assets/
-│   │   └── hero.png          # Documentation asset
+│   │   └── App.tsx              # Top-level application shell & mode orchestration
 │   ├── components/
-│   │   ├── AppHeader.tsx     # Branding, privacy badge, workspace navigation
-│   │   ├── CopyButton.tsx    # Clipboard interaction with feedback
-│   │   ├── EditorToolbar.tsx # File upload, clear, and action controls
-│   │   ├── EmptyState.tsx    # Accessible empty state guidance
-│   │   ├── JsonEditor.tsx    # CodeMirror 6 wrapper with error highlighting
-│   │   ├── StatisticsRow.tsx # Document size, line count, keys, and depth
-│   │   ├── StatusMessage.tsx # Accessible alert & status banners
-│   │   ├── ThemeToggle.tsx   # Dark/light theme switcher
-│   │   └── WorkspaceTabs.tsx # Accessible tab navigation
+│   │   ├── mascot/
+│   │   │   ├── ByteMascot.tsx   # SVG animated Byte mascot (5 expressions)
+│   │   │   └── MascotBubble.tsx # Interactive speech bubble
+│   │   ├── visual/
+│   │   │   ├── ConfettiCelebration.tsx # Celebration particle burst
+│   │   │   ├── FloatingDots.tsx # Ambient background floating dots
+│   │   │   ├── ProgressDots.tsx # Accessible step/round progress indicators
+│   │   │   └── XpBadge.tsx      # XP indicator with animated floating award
+│   │   ├── AppHeader.tsx        # Playground vs Learn & Play switcher & navigation
+│   │   ├── CopyButton.tsx       # Clipboard interaction with feedback
+│   │   ├── EditorToolbar.tsx    # File upload, clear, and sample actions
+│   │   ├── EmptyState.tsx       # Accessible empty state guidance
+│   │   ├── JsonEditor.tsx       # CodeMirror 6 wrapper with error highlighting
+│   │   ├── StatisticsRow.tsx    # Live UTF-8 metrics & document stats
+│   │   ├── StatusMessage.tsx    # Accessible status & error alerts
+│   │   ├── ThemeToggle.tsx      # Dark/light theme switcher
+│   │   └── WorkspaceTabs.tsx    # Workspace navigation tabs
 │   ├── data/
-│   │   └── sampleJson.ts     # Sample JSON datasets for demonstration
+│   │   └── sampleJson.ts        # Sample JSON payloads
 │   ├── features/
-│   │   ├── compare/          # Workspace B: Compare features and diff list
-│   │   ├── format/           # Workspace A: Format, minify, and validate
-│   │   └── search/           # Workspace C: Key and value nested search
+│   │   ├── achievements/        # Sticker Book, achievements, & unlock dialogs
+│   │   ├── challenges/          # Syntax Detective mini-game, rounds, & evaluator
+│   │   ├── compare/             # Workspace B: Structural diff comparison
+│   │   ├── format/              # Workspace A: Format, minify, and validate
+│   │   ├── learning/            # Guided lessons, interactive quiz widget, & dashboard
+│   │   ├── progress/            # LocalStorage schema, persistence, & state hook
+│   │   └── search/              # Workspace C: Key and value nested search
 │   ├── hooks/
-│   │   └── useTheme.ts       # Theme state and persistence hook
+│   │   └── useTheme.ts          # Theme preference state
 │   ├── lib/
-│   │   ├── browser/          # Clipboard, download, and file reader utilities
-│   │   ├── json/             # Validation, comparison, formatting, statistics, decimal math
-│   │   └── text/             # Line and position calculation helpers
+│   │   ├── browser/             # Clipboard, download, & file reader
+│   │   ├── json/                # Validation, comparison, formatting, decimal math
+│   │   └── text/                # Line and position calculation helpers
 │   ├── styles/
-│   │   └── index.css         # Tailwind CSS imports and custom utility classes
-│   └── main.tsx              # Application entry point
+│   │   └── index.css            # Tailwind CSS and keyframe animations
+│   └── main.tsx                 # Application entry point
 ├── tests/
-│   ├── components/           # React Testing Library component integration tests
-│   ├── e2e/                  # Playwright browser end-to-end tests
-│   └── unit/                 # Vitest unit test suite
-├── eslint.config.js          # ESLint configuration
-├── package.json              # Package manifest and npm scripts
-├── playwright.config.ts      # Playwright end-to-end configuration
-├── tsconfig.json             # TypeScript root project configuration
-└── vite.config.ts            # Vite bundler & Vitest configuration
+│   ├── components/              # Component integration tests (Vitest + RTL)
+│   ├── e2e/                     # End-to-end browser tests (Playwright)
+│   ├── setup.ts                 # Test environment setup & polyfills
+│   └── unit/                    # Core algorithm unit tests (Vitest)
+├── eslint.config.js             # ESLint configuration
+├── package.json                 # Package manifest
+├── playwright.config.ts         # Playwright test runner configuration
+├── tsconfig.json                # TypeScript project configuration
+└── vite.config.ts               # Vite & Vitest configuration
 ```
 
 ---
@@ -191,9 +218,9 @@ jotjson/
 ## Contributing
 
 1. Fork and clone the repository.
-2. Install dependencies with `npm install`.
+2. Install dependencies: `npm install`.
 3. Create a feature branch: `git checkout -b feature/my-feature`.
-4. Run `npm run check` to ensure all linters, type checks, and tests pass.
+4. Run all quality gates: `npm run check && npm run test:e2e`.
 5. Submit a pull request.
 
 ---
