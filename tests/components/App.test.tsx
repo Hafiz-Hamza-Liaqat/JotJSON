@@ -130,4 +130,22 @@ describe('JotJSON app', () => {
     await user.upload(input, file);
     expect(screen.getByRole('alert').textContent).toMatch(/exceeds/i);
   });
+
+  it('marks search results stale and updates status when loading sample', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByRole('tab', { name: 'Search JSON' }));
+    fireEvent.change(screen.getByLabelText('JSON document'), {
+      target: { value: '{"user":{"email":"casey@example.test"}}' },
+    });
+    await user.type(screen.getByLabelText('Query'), 'email');
+    await user.click(screen.getByRole('button', { name: 'Search' }));
+    expect(screen.getByText('$["user"]["email"]')).toBeInTheDocument();
+    expect(screen.queryByText(/changed after this search/i)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Load sample' }));
+    expect(screen.getByText(/The document or query changed after this search/i)).toBeInTheDocument();
+    expect(screen.getByText(/Sample JSON loaded/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Copy path' })).toBeDisabled();
+  });
 });

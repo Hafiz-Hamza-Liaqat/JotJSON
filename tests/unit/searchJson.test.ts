@@ -78,4 +78,16 @@ describe('searchJson', () => {
       expect(result.truncated).toBe(true);
     }
   });
+
+  it('safely handles large match counts without unbounded result allocation', () => {
+    const items = Array.from({ length: 5000 }, (_, index) => `item-${index}`);
+    const source = JSON.stringify(items);
+    const result = searchJson(source, 'item-', 'values');
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.total).toBe(5000);
+      expect(result.truncated).toBe(true);
+      expect(result.matches).toHaveLength(SEARCH_DISPLAY_LIMIT);
+    }
+  });
 });

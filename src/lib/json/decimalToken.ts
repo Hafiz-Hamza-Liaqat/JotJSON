@@ -1,13 +1,14 @@
 export type NormalizedDecimal = {
   sign: 1 | -1;
   digits: string;
-  exponent: number;
+  exponent: bigint;
 };
 
 /**
  * Normalize a JSON numeric token for exact decimal comparison.
  * Equivalent forms such as 1, 1.0, and 1e0 compare equal.
  * Large integers are compared as digit strings, never as JS numbers.
+ * Exponents use exact arbitrary-precision integer arithmetic to avoid precision loss.
  */
 export function normalizeDecimalToken(token: string): NormalizedDecimal | null {
   const text = token.trim();
@@ -44,14 +45,14 @@ export function normalizeDecimalToken(token: string): NormalizedDecimal | null {
     intPart = '0';
   }
 
-  let exponent = 0;
+  let exponent = 0n;
   if (text[index] === 'e' || text[index] === 'E') {
     index += 1;
-    let expSign = 1;
+    let expNegative = false;
     if (text[index] === '+') {
       index += 1;
     } else if (text[index] === '-') {
-      expSign = -1;
+      expNegative = true;
       index += 1;
     }
     let expDigits = '';
@@ -62,7 +63,12 @@ export function normalizeDecimalToken(token: string): NormalizedDecimal | null {
     if (expDigits.length === 0) {
       return null;
     }
-    exponent = expSign * parseUnsignedInt(expDigits);
+    try {
+      const parsed = BigInt(expDigits);
+      exponent = expNegative ? -parsed : parsed;
+    } catch {
+      return null;
+    }
   }
 
   if (index !== text.length) {
@@ -70,16 +76,16 @@ export function normalizeDecimalToken(token: string): NormalizedDecimal | null {
   }
 
   let digits = intPart + fracPart;
-  exponent -= fracPart.length;
+  exponent -= BigInt(fracPart.length);
   digits = digits.replace(/^0+/, '');
 
   if (digits.length === 0) {
-    return { sign: 1, digits: '0', exponent: 0 };
+    return { sign: 1, digits: '0', exponent: 0n };
   }
 
   while (digits.endsWith('0')) {
     digits = digits.slice(0, -1);
-    exponent += 1;
+    exponent += 1n;
   }
 
   return { sign, digits, exponent };
@@ -96,12 +102,4 @@ export function numericTokensEqual(left: string, right: string): boolean {
 
 function isDigit(character: string): boolean {
   return character >= '0' && character <= '9';
-}
-
-function parseUnsignedInt(digits: string): number {
-  let value = 0;
-  for (const character of digits) {
-    value = value * 10 + (character.charCodeAt(0) - 48);
-  }
-  return value;
 }

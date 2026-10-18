@@ -79,7 +79,18 @@ export function SearchWorkspace({ theme, input, onInputChange }: SearchWorkspace
     }
     onInputChange(result.text);
     markStale();
+    setErrorLine(null);
     setStatus({ tone: 'neutral', message: `Loaded ${result.name}.` });
+  }
+
+  function handleLoadSample() {
+    onInputChange(SAMPLE_JSON);
+    markStale();
+    setErrorLine(null);
+    setStatus({
+      tone: 'neutral',
+      message: 'Sample JSON loaded. Enter a query and run search.',
+    });
   }
 
   function handleQueryKey(event: KeyboardEvent<HTMLInputElement>) {
@@ -97,7 +108,7 @@ export function SearchWorkspace({ theme, input, onInputChange }: SearchWorkspace
       className="flex min-h-0 flex-1 flex-col gap-4"
     >
       <EditorToolbar fileInputRef={fileInputRef} onUpload={(file) => void handleUpload(file)}>
-        <button type="button" className="btn-secondary" onClick={() => onInputChange(SAMPLE_JSON)}>
+        <button type="button" className="btn-secondary" onClick={handleLoadSample}>
           <FileJson className="size-4" aria-hidden="true" />
           Load sample
         </button>

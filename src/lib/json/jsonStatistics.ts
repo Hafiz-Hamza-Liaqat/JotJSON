@@ -12,17 +12,30 @@ export function computeStatistics(source: string, value: JsonValue): JsonStatist
 }
 
 export function countObjectKeys(value: JsonValue): number {
-  switch (value.type) {
-    case 'object':
-      return (
-        value.entries.length +
-        value.entries.reduce((sum, entry) => sum + countObjectKeys(entry.value), 0)
-      );
-    case 'array':
-      return value.items.reduce((sum, item) => sum + countObjectKeys(item), 0);
-    default:
-      return 0;
+  let count = 0;
+  const stack: JsonValue[] = [value];
+
+  while (stack.length > 0) {
+    const current = stack.pop()!;
+    if (current.type === 'object') {
+      count += current.entries.length;
+      for (let i = current.entries.length - 1; i >= 0; i -= 1) {
+        const child = current.entries[i]?.value;
+        if (child && (child.type === 'object' || child.type === 'array')) {
+          stack.push(child);
+        }
+      }
+    } else if (current.type === 'array') {
+      for (let i = current.items.length - 1; i >= 0; i -= 1) {
+        const item = current.items[i];
+        if (item && (item.type === 'object' || item.type === 'array')) {
+          stack.push(item);
+        }
+      }
+    }
   }
+
+  return count;
 }
 
 /**
@@ -35,13 +48,27 @@ export function measureDepth(value: JsonValue): number {
       if (value.entries.length === 0) {
         return 1;
       }
-      return 1 + Math.max(...value.entries.map((entry) => measureDepth(entry.value)));
+      let maxChild = 0;
+      for (const entry of value.entries) {
+        const childDepth = measureDepth(entry.value);
+        if (childDepth > maxChild) {
+          maxChild = childDepth;
+        }
+      }
+      return 1 + maxChild;
     }
     case 'array': {
       if (value.items.length === 0) {
         return 1;
       }
-      return 1 + Math.max(...value.items.map((item) => measureDepth(item)));
+      let maxChild = 0;
+      for (const item of value.items) {
+        const childDepth = measureDepth(item);
+        if (childDepth > maxChild) {
+          maxChild = childDepth;
+        }
+      }
+      return 1 + maxChild;
     }
     default:
       return 0;

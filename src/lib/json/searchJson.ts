@@ -41,14 +41,14 @@ export function searchJson(
   }
 
   const needle = trimmedQuery.toLowerCase();
-  const collected: SearchMatch[] = [];
-  visit(validated.value, [], needle, scope, collected);
+  const collector = { matches: [] as SearchMatch[], total: 0 };
+  visit(validated.value, [], needle, scope, collector);
 
   return {
     ok: true,
-    total: collected.length,
-    truncated: collected.length > SEARCH_DISPLAY_LIMIT,
-    matches: collected.slice(0, SEARCH_DISPLAY_LIMIT),
+    total: collector.total,
+    truncated: collector.total > SEARCH_DISPLAY_LIMIT,
+    matches: collector.matches,
   };
 }
 
@@ -57,28 +57,34 @@ function visit(
   path: PathSegment[],
   needle: string,
   scope: SearchScope,
-  matches: SearchMatch[],
+  collector: { matches: SearchMatch[]; total: number },
 ): void {
   if (value.type === 'object') {
     for (const entry of value.entries) {
       const childPath = [...path, entry.key];
       if (scope !== 'values' && includesInsensitive(entry.key, needle)) {
-        matches.push({
-          path: toJsonPath(childPath),
-          kind: 'key',
-          matchedText: entry.key,
-          valueText: jsonValueToText(entry.value),
-        });
+        collector.total += 1;
+        if (collector.matches.length < SEARCH_DISPLAY_LIMIT) {
+          collector.matches.push({
+            path: toJsonPath(childPath),
+            kind: 'key',
+            matchedText: entry.key,
+            valueText: jsonValueToText(entry.value),
+          });
+        }
       }
-      visit(entry.value, childPath, needle, scope, matches);
+      visit(entry.value, childPath, needle, scope, collector);
     }
     return;
   }
 
   if (value.type === 'array') {
-    value.items.forEach((item, index) => {
-      visit(item, [...path, index], needle, scope, matches);
-    });
+    for (let index = 0; index < value.items.length; index += 1) {
+      const item = value.items[index];
+      if (item) {
+        visit(item, [...path, index], needle, scope, collector);
+      }
+    }
     return;
   }
 
@@ -88,12 +94,15 @@ function visit(
 
   const haystack = primitiveSearchText(value);
   if (includesInsensitive(haystack, needle)) {
-    matches.push({
-      path: toJsonPath(path),
-      kind: 'value',
-      matchedText: haystack,
-      valueText: jsonValueToText(value),
-    });
+    collector.total += 1;
+    if (collector.matches.length < SEARCH_DISPLAY_LIMIT) {
+      collector.matches.push({
+        path: toJsonPath(path),
+        kind: 'value',
+        matchedText: haystack,
+        valueText: jsonValueToText(value),
+      });
+    }
   }
 }
 

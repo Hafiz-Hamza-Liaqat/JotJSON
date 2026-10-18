@@ -40,4 +40,13 @@ describe('jsonStatistics', () => {
     expect(validateJson('').ok).toBe(false);
     expect(validateJson('{').ok).toBe(false);
   });
+
+  it('safely processes large arrays without argument-limit or stack overflow error', () => {
+    // 70,000 elements exceeds JavaScript's function argument limit (~65,536)
+    const largeArray = '[' + Array(70000).fill('1').join(',') + ']';
+    const result = stats(largeArray);
+    expect(result.maxDepth).toBe(1);
+    expect(result.objectKeyCount).toBe(0);
+    expect(result.lineCount).toBe(1);
+  });
 });
