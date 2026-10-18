@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { AppHeader } from '../components/AppHeader';
 import type { WorkspaceId } from '../components/WorkspaceTabs';
+import { SAMPLE_COMPARE_MODIFIED, SAMPLE_COMPARE_ORIGINAL } from '../data/sampleJson';
 import { StickerBook } from '../features/achievements/StickerBook';
 import { StickerModal } from '../features/achievements/StickerModal';
 import { SyntaxDetective } from '../features/challenges/SyntaxDetective';
@@ -23,8 +24,8 @@ export default function App() {
   // Playground workspace state (preserved)
   const [workspace, setWorkspace] = useState<WorkspaceId>('format');
   const [formatInput, setFormatInput] = useState('');
-  const [compareOriginal, setCompareOriginal] = useState('');
-  const [compareModified, setCompareModified] = useState('');
+  const [compareOriginal, setCompareOriginal] = useState(SAMPLE_COMPARE_ORIGINAL);
+  const [compareModified, setCompareModified] = useState(SAMPLE_COMPARE_MODIFIED);
   const [searchInput, setSearchInput] = useState('');
 
   // Learn & Play view state

@@ -31,7 +31,8 @@ test.describe('JotJSON core workflows', () => {
   test('compares two documents', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('tab', { name: 'Compare JSON' }).click();
-    await page.getByRole('button', { name: 'Load sample' }).click();
+    await expect(page.getByTestId('compare-original').locator('.cm-content')).toContainText('"Alex"');
+    await expect(page.getByTestId('compare-modified').locator('.cm-content')).toContainText('"Alexandra"');
     await page.getByRole('button', { name: 'Compare' }).click();
     await expect(page.getByText('$["user"]["name"]')).toBeVisible();
     await expect(page.getByText('$["user"]["role"]')).toBeVisible();
