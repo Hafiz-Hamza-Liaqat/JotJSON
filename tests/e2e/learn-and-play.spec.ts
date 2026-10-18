@@ -16,6 +16,88 @@ async function assertNoHorizontalOverflow(page: Page) {
   expect(hasOverflow).toBe(false);
 }
 
+async function expectStickerStatus(page: Page, stickerId: string, status: 'Unlocked' | 'Locked') {
+  const card = page.getByTestId(`sticker-card-${stickerId}`);
+  await expect(card).toBeVisible();
+  const statusBadge = card.getByTestId(`sticker-status-${stickerId}`);
+  await expect(statusBadge).toHaveText(status);
+}
+
+async function dismissAllModals(page: Page, timeout = 2500) {
+  const closeBtn = page.getByTestId('sticker-modal-close');
+  try {
+    await closeBtn.waitFor({ state: 'visible', timeout });
+    while (await closeBtn.isVisible()) {
+      await closeBtn.click();
+      await page.waitForTimeout(150);
+    }
+  } catch {
+    // No modal appeared
+  }
+}
+
+const CASE_SOLUTIONS = [
+  '{\n  "id": 101,\n  "username": "Alex",\n  "role": "explorer"\n}',
+  '{\n  "name": "JotJSON",\n  "version": "2.0",\n  "licensed": true\n}',
+  '{\n  "fruit": "Apple",\n  "color": "Red",\n  "crisp": true\n}',
+  '{\n  "team": "Alpha",\n  "scores": [ 98, 95, 100 ]\n}',
+  '{\n  "mascot": "Byte",\n  "active": true\n}',
+];
+
+async function completeLessonOne(page: Page) {
+  await page.getByRole('tab', { name: 'Lesson 1' }).click();
+
+  // Step 1: What is JSON?
+  await page
+    .getByRole('radio', {
+      name: 'It is a lightweight, text-based data format that computers and humans can easily read and write.',
+    })
+    .click();
+  await page.getByRole('button', { name: 'Next Step' }).click();
+
+  // Step 2: Key & Value Pairs
+  await page.getByRole('radio', { name: '"username" is the KEY, and "coder_alex" is the VALUE' }).click();
+  await page.getByRole('button', { name: 'Next Step' }).click();
+
+  // Step 3: Strings vs Numbers
+  await page.getByRole('radio', { name: '"25" is a STRING (text), while 25 is a NUMBER (integer)' }).click();
+  await page.getByRole('button', { name: 'Next Step' }).click();
+
+  // Step 4: Booleans and Null
+  await page.getByRole('radio', { name: 'true', exact: true }).click();
+  await page.getByRole('button', { name: 'Next Step' }).click();
+
+  // Step 5: Arrays & Nested Data
+  await page.getByRole('radio', { name: 'An ARRAY containing two nested OBJECTS' }).click();
+  await dismissAllModals(page);
+  await page.getByRole('button', { name: 'Next Step' }).click();
+
+  // Step 6: Strict JSON Syntax Rules
+  await page.getByRole('radio', { name: '{ "name": "Byte", "active": true }' }).click();
+  await page.getByRole('button', { name: /Finish Lesson & Claim XP/i }).click();
+
+  await dismissAllModals(page);
+}
+
+async function completeAllDetectiveCases(page: Page) {
+  await page.getByRole('tab', { name: 'Syntax Detective' }).click();
+
+  for (let i = 0; i < CASE_SOLUTIONS.length; i++) {
+    await setEditor(page, 'challenge-editor', CASE_SOLUTIONS[i]!);
+    await page.getByRole('button', { name: 'Check My JSON' }).click();
+    await expect(page.getByText('Case Solved!', { exact: true })).toBeVisible();
+
+    // Achievements only unlock on Case 1 (Perfect Syntax) and Case 5 (Bug Hunter / JSON Champion)
+    if (i === 0 || i === CASE_SOLUTIONS.length - 1) {
+      await dismissAllModals(page);
+    }
+
+    if (i < CASE_SOLUTIONS.length - 1) {
+      await page.getByRole('button', { name: 'Next Case' }).click();
+    }
+  }
+}
+
 test.describe('JotJSON Learn & Play E2E Workflows', () => {
   test('switches between Playground and Learn & Play, preserves state', async ({ page }) => {
     await page.goto('/');
@@ -45,7 +127,8 @@ test.describe('JotJSON Learn & Play E2E Workflows', () => {
     await expect(page.getByText(/JotJSON PlayLab/i).first()).toBeVisible();
   });
 
-  test('completes Lesson 1, earns XP, and unlocks JSON Beginner sticker', async ({ page }) => {
+  test('completes Lesson 1, displays floating +100 XP award, and unlocks JSON Beginner', async ({ page }) => {
+    test.setTimeout(60_000);
     await page.goto('/');
     await page.getByRole('tab', { name: 'Learn & Play' }).click();
 
@@ -90,6 +173,7 @@ test.describe('JotJSON Learn & Play E2E Workflows', () => {
     await expect(page.getByRole('heading', { name: /Arrays & Nested Data/i })).toBeVisible();
     await page.getByRole('radio', { name: 'An ARRAY containing two nested OBJECTS' }).click();
     await expect(page.getByText(/Spot on!/i)).toBeVisible();
+    await dismissAllModals(page);
     await page.getByRole('button', { name: 'Next Step' }).click();
 
     // Step 6: Strict JSON Syntax Rules
@@ -97,51 +181,118 @@ test.describe('JotJSON Learn & Play E2E Workflows', () => {
     await page.getByRole('radio', { name: '{ "name": "Byte", "active": true }' }).click();
     await page.getByRole('button', { name: /Finish Lesson & Claim XP/i }).click();
 
-    // If sticker unlock modal appeared, dismiss it
-    const modalClose = page.getByRole('button', { name: 'Awesome!' });
-    if (await modalClose.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await modalClose.click();
-    }
+    // Verify floating +100 XP! indicator appears in header
+    await expect(page.getByText('+100 XP!')).toBeVisible();
+
+    await dismissAllModals(page);
 
     // Return to dashboard
     await page.getByRole('button', { name: /Back to Learn & Play/i }).click();
     await expect(page.getByText(/JotJSON PlayLab/i).first()).toBeVisible();
 
-    // Verify XP was awarded (100 XP)
+    // Verify total XP updated
     await expect(page.getByLabel(/total experience points/i).first()).toHaveText(/100 XP/);
+
+    // Check Sticker Book: JSON Beginner is unlocked, Bug Hunter and JSON Champion are locked
+    await page.getByRole('tab', { name: 'Stickers' }).click();
+    await expectStickerStatus(page, 'json-beginner', 'Unlocked');
+    await expectStickerStatus(page, 'bug-hunter', 'Locked');
+    await expectStickerStatus(page, 'json-champion', 'Locked');
   });
 
-  test('solves Syntax Detective Case 1, reveals clues, and handles errors', async ({ page }) => {
+  test('solves Syntax Detective Case 1, displays floating +25 XP award, and unlocks Perfect Syntax', async ({ page }) => {
+    test.setTimeout(60_000);
     await page.goto('/');
     await page.getByRole('tab', { name: 'Learn & Play' }).click();
     await page.getByRole('tab', { name: 'Syntax Detective' }).click();
 
     await expect(page.getByRole('heading', { name: /The Unquoted String/i })).toBeVisible();
 
-    // Run investigation on broken code
+    // Investigation on broken code
     await page.getByRole('button', { name: 'Check My JSON' }).click();
     await expect(page.getByText(/Syntax Error/i)).toBeVisible();
 
-    // Reveal clue
+    // Solve Case 1 without hints
+    await setEditor(page, 'challenge-editor', '{\n  "id": 101,\n  "username": "Alex",\n  "role": "explorer"\n}');
+    await page.getByRole('button', { name: 'Check My JSON' }).click();
+    await expect(page.getByText('Case Solved!', { exact: true })).toBeVisible();
+
+    // Floating XP indicator for +25 XP!
+    await expect(page.getByText('+25 XP!')).toBeVisible();
+
+    await dismissAllModals(page);
+
+    // Advance to Case 2 and test hint trigger
+    await page.getByRole('button', { name: 'Next Case' }).click();
     await page.getByRole('button', { name: 'Get Hint' }).click();
     await expect(page.getByText(/Clue 1:/i)).toBeVisible();
 
-    // Fix broken code: wrap Alex in quotes in the actual starter object
-    await setEditor(page, 'challenge-editor', '{\n  "id": 101,\n  "username": "Alex",\n  "role": "explorer"\n}');
-
-    // Run investigation on fixed code
-    await page.getByRole('button', { name: 'Check My JSON' }).click();
-    await expect(page.getByText('Case Solved!', { exact: true })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Next Case' })).toBeVisible();
-
-    // Dismiss sticker modal if it pops up
-    const modalClose = page.getByRole('button', { name: 'Awesome!' });
-    if (await modalClose.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await modalClose.click();
-    }
+    // Check Sticker Book:
+    // 1. Completing only first case does NOT unlock Bug Hunter
+    // 2. Completing without hints unlocks Perfect Syntax
+    await page.getByRole('tab', { name: 'Stickers' }).click();
+    await expectStickerStatus(page, 'perfect-syntax', 'Unlocked');
+    await expectStickerStatus(page, 'bug-hunter', 'Locked');
+    await expectStickerStatus(page, 'json-champion', 'Locked');
   });
 
-  test('persists progress across page reload and prevents duplicate XP', async ({ page }) => {
+  test('completes all five detective cases and unlocks Bug Hunter', async ({ page }) => {
+    test.setTimeout(60_000);
+    await page.goto('/');
+    await page.getByRole('tab', { name: 'Learn & Play' }).click();
+
+    // Solve all 5 cases
+    await completeAllDetectiveCases(page);
+
+    // Check Sticker Book: Bug Hunter is Unlocked, but JSON Champion is Locked (Lesson 1 not completed yet)
+    await page.getByRole('tab', { name: 'Stickers' }).click();
+    await expectStickerStatus(page, 'bug-hunter', 'Unlocked');
+    await expectStickerStatus(page, 'json-champion', 'Locked');
+  });
+
+  test('unlocks JSON Champion when Lesson 1 is completed first, followed by all five detective cases', async ({ page }) => {
+    test.setTimeout(60_000);
+    await page.goto('/');
+    await page.getByRole('tab', { name: 'Learn & Play' }).click();
+
+    // 1. Complete Lesson 1
+    await completeLessonOne(page);
+
+    // 2. Complete all 5 detective cases
+    await completeAllDetectiveCases(page);
+
+    // Check Sticker Book: JSON Champion is now Unlocked!
+    await page.getByRole('tab', { name: 'Stickers' }).click();
+    await expectStickerStatus(page, 'json-beginner', 'Unlocked');
+    await expectStickerStatus(page, 'bug-hunter', 'Unlocked');
+    await expectStickerStatus(page, 'json-champion', 'Unlocked');
+  });
+
+  test('unlocks JSON Champion when all five detective cases are completed first, followed by Lesson 1', async ({ page }) => {
+    test.setTimeout(60_000);
+    await page.goto('/');
+    await page.getByRole('tab', { name: 'Learn & Play' }).click();
+
+    // 1. Complete all 5 detective cases first
+    await completeAllDetectiveCases(page);
+
+    // Bug Hunter is unlocked, JSON Champion is locked
+    await page.getByRole('tab', { name: 'Stickers' }).click();
+    await expectStickerStatus(page, 'bug-hunter', 'Unlocked');
+    await expectStickerStatus(page, 'json-champion', 'Locked');
+
+    // 2. Complete Lesson 1
+    await completeLessonOne(page);
+
+    // Check Sticker Book: JSON Champion is now Unlocked!
+    await page.getByRole('tab', { name: 'Stickers' }).click();
+    await expectStickerStatus(page, 'json-beginner', 'Unlocked');
+    await expectStickerStatus(page, 'bug-hunter', 'Unlocked');
+    await expectStickerStatus(page, 'json-champion', 'Unlocked');
+  });
+
+  test('persists progress across page reload and prevents duplicate XP or re-triggering achievements on replay', async ({ page }) => {
+    test.setTimeout(60_000);
     await page.goto('/');
     await page.getByRole('tab', { name: 'Learn & Play' }).click();
     await page.getByRole('tab', { name: 'Syntax Detective' }).click();
@@ -151,62 +302,36 @@ test.describe('JotJSON Learn & Play E2E Workflows', () => {
     await page.getByRole('button', { name: 'Check My JSON' }).click();
     await expect(page.getByText('Case Solved!', { exact: true })).toBeVisible();
 
-    const modalClose = page.getByRole('button', { name: 'Awesome!' });
-    if (await modalClose.isVisible({ timeout: 1500 }).catch(() => false)) {
-      await modalClose.click();
-    }
+    await dismissAllModals(page);
 
-    // Get current XP text
     const xpText = await page.getByLabel(/total experience points/i).first().innerText();
     expect(xpText).toBe('25 XP');
 
     // Reload page
     await page.reload();
+    await expect(page.getByRole('tab', { name: 'Learn & Play' })).toBeVisible();
     await page.getByRole('tab', { name: 'Learn & Play' }).click();
+    await expect(page.getByRole('tab', { name: 'Learn & Play', selected: true })).toBeVisible();
 
     // Check persisted XP
     const reloadedXpText = await page.getByLabel(/total experience points/i).first().innerText();
     expect(reloadedXpText).toBe('25 XP');
 
-    // Verify Case 1 shows solved in Syntax Detective
+    // Verify Case 1 shows completed in Syntax Detective
     await page.getByRole('tab', { name: 'Syntax Detective' }).click();
     await expect(page.getByRole('button', { name: /Case 1 \(Completed\)/i })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Next Case' })).toBeVisible();
 
-    // Re-solving already solved Case 1 does NOT grant additional XP
+    // Re-solving already solved Case 1 does NOT grant additional XP or floating XP
     await setEditor(page, 'challenge-editor', '{\n  "id": 101,\n  "username": "Alex",\n  "role": "explorer"\n}');
     await page.getByRole('button', { name: 'Check My JSON' }).click();
     await expect(page.getByText('Case Solved!', { exact: true })).toBeVisible();
 
+    // Verify no floating +25 XP appears on replay
+    await expect(page.getByText('+25 XP!')).not.toBeVisible();
+
     const postCheckXp = await page.getByLabel(/total experience points/i).first().innerText();
     expect(postCheckXp).toBe('25 XP');
-  });
-
-  test('displays unlocked and locked stickers in the Sticker Book', async ({ page }) => {
-    await page.goto('/');
-    await page.getByRole('tab', { name: 'Learn & Play' }).click();
-
-    // Solve Case 1 to unlock Bug Hunter
-    await page.getByRole('tab', { name: 'Syntax Detective' }).click();
-    await setEditor(page, 'challenge-editor', '{\n  "id": 101,\n  "username": "Alex",\n  "role": "explorer"\n}');
-    await page.getByRole('button', { name: 'Check My JSON' }).click();
-
-    const modalClose = page.getByRole('button', { name: 'Awesome!' });
-    if (await modalClose.isVisible({ timeout: 1500 }).catch(() => false)) {
-      await modalClose.click();
-    }
-
-    // Open Sticker Book via Stickers tab
-    await page.getByRole('tab', { name: 'Stickers' }).click();
-    await expect(page.getByRole('heading', { name: 'Sticker Book & Achievements' })).toBeVisible();
-
-    // Check Bug Hunter is Unlocked
-    await expect(page.getByRole('heading', { name: 'Bug Hunter' })).toBeVisible();
-    await expect(page.getByText('Unlocked').first()).toBeVisible();
-
-    // Check JSON Champion is Locked
-    await expect(page.getByRole('heading', { name: 'JSON Champion' })).toBeVisible();
-    await expect(page.getByText('Locked').first()).toBeVisible();
   });
 
   test('resets learning progress safely when confirmed', async ({ page }) => {
@@ -219,10 +344,7 @@ test.describe('JotJSON Learn & Play E2E Workflows', () => {
     await page.getByRole('button', { name: 'Check My JSON' }).click();
     await expect(page.getByText('Case Solved!', { exact: true })).toBeVisible();
 
-    const modalClose = page.getByRole('button', { name: 'Awesome!' });
-    if (await modalClose.isVisible({ timeout: 1500 }).catch(() => false)) {
-      await modalClose.click();
-    }
+    await dismissAllModals(page);
 
     // Go back to Learn & Play Dashboard
     await page.getByRole('tab', { name: 'Dashboard' }).click();

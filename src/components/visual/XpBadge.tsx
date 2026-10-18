@@ -67,6 +67,26 @@ export function XpBadge({
                 transform: translateY(-26px) scale(0.9);
               }
             }
+            @media (prefers-reduced-motion: reduce) {
+              @keyframes float-up-fade {
+                0% {
+                  opacity: 0;
+                  transform: none;
+                }
+                25% {
+                  opacity: 1;
+                  transform: none;
+                }
+                75% {
+                  opacity: 1;
+                  transform: none;
+                }
+                100% {
+                  opacity: 0;
+                  transform: none;
+                }
+              }
+            }
           `}</style>
           +{floatingAward.amount} XP!
         </span>

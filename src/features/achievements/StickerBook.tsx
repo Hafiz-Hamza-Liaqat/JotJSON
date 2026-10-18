@@ -62,6 +62,7 @@ export function StickerBook({ progress, onBackToHome }: StickerBookProps) {
           return (
             <div
               key={sticker.id}
+              data-testid={`sticker-card-${sticker.id}`}
               className={`relative flex flex-col justify-between rounded-xl border p-4 transition-all ${
                 isUnlocked
                   ? 'border-amber-300/80 bg-white shadow-sm dark:border-amber-500/40 dark:bg-slate-900'
@@ -81,6 +82,7 @@ export function StickerBook({ progress, onBackToHome }: StickerBookProps) {
                   </div>
 
                   <span
+                    data-testid={`sticker-status-${sticker.id}`}
                     className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
                       isUnlocked
                         ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300'

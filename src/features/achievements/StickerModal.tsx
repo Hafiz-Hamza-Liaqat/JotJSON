@@ -15,6 +15,7 @@ export function StickerModal({ stickerId, onClose }: StickerModalProps) {
   return (
     <div
       role="dialog"
+      data-testid="sticker-modal"
       aria-modal="true"
       aria-labelledby="sticker-dialog-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -32,6 +33,7 @@ export function StickerModal({ stickerId, onClose }: StickerModalProps) {
       <div className="relative z-10 flex w-full max-w-sm flex-col items-center rounded-2xl border border-amber-300/60 bg-white p-6 text-center shadow-xl dark:border-amber-500/30 dark:bg-slate-900 sm:p-7">
         <button
           type="button"
+          data-testid="sticker-modal-x-btn"
           onClick={onClose}
           className="absolute right-3.5 top-3.5 rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
           aria-label="Close dialog"
@@ -59,6 +61,7 @@ export function StickerModal({ stickerId, onClose }: StickerModalProps) {
 
         <button
           type="button"
+          data-testid="sticker-modal-close"
           onClick={onClose}
           className="btn-primary mt-6 w-full justify-center bg-blue-600 hover:bg-blue-700 text-sm font-bold"
         >

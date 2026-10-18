@@ -13,6 +13,8 @@ type AppHeaderProps = {
   learnView: LearnViewMode;
   onLearnViewChange: (view: LearnViewMode) => void;
   totalXp: number;
+  floatingXp?: { amount: number; key: number } | null;
+  onDismissFloatingXp?: () => void;
   theme: Theme;
   onToggleTheme: () => void;
 };
@@ -25,6 +27,8 @@ export function AppHeader({
   learnView,
   onLearnViewChange,
   totalXp,
+  floatingXp,
+  onDismissFloatingXp,
   theme,
   onToggleTheme,
 }: AppHeaderProps) {
@@ -148,7 +152,12 @@ export function AppHeader({
               </button>
             </nav>
 
-            <XpBadge totalXp={totalXp} size="sm" />
+            <XpBadge
+              totalXp={totalXp}
+              floatingAward={floatingXp}
+              onDismissFloating={onDismissFloatingXp}
+              size="sm"
+            />
           </div>
         )}
 

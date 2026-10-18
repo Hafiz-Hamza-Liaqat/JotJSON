@@ -40,6 +40,8 @@ export default function App() {
     resetAllProgress,
     newlyUnlockedSticker,
     dismissStickerModal,
+    floatingXp,
+    dismissFloatingXp,
   } = useLearningProgress();
 
   return (
@@ -52,6 +54,8 @@ export default function App() {
         learnView={learnView}
         onLearnViewChange={setLearnView}
         totalXp={progress.totalXp}
+        floatingXp={floatingXp}
+        onDismissFloatingXp={dismissFloatingXp}
         theme={theme}
         onToggleTheme={toggleTheme}
       />
