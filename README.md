@@ -13,6 +13,18 @@ All processing, parsing, and operations execute in client memory with zero serve
 
 ---
 
+## Screenshots
+
+| Format & Validate | Compare JSON |
+| :---: | :---: |
+| [![Format & Validate](docs/screenshots/01-format-validate.png)](docs/screenshots/01-format-validate.png)<br><sub>**Format & Validate** — Strict JSON validation, line/column diagnostics, indentation options, token-preserving minification, and UTF-8 document statistics.</sub> | [![Compare JSON](docs/screenshots/02-compare-json.png)](docs/screenshots/02-compare-json.png)<br><sub>**Compare JSON** — Preloaded dual-editor structural comparison highlighting added, removed, and changed values with exact JSONPath locations.</sub> |
+| **Search JSON** | **Learn & Play Dashboard** |
+| [![Search JSON](docs/screenshots/03-search-json.png)](docs/screenshots/03-search-json.png)<br><sub>**Search JSON** — Deep nested traversal searching across object keys and primitive values with instant match navigation.</sub> | [![Learn & Play Dashboard](docs/screenshots/04-learn-play.png)](docs/screenshots/04-learn-play.png)<br><sub>**JotJSON PlayLab** — Interactive learning dashboard featuring Byte the Mascot, guided lesson roadmap, and XP progression.</sub> |
+| **Syntax Detective** | **Sticker Book & Achievements** |
+| [![Syntax Detective](docs/screenshots/05-syntax-detective.png)](docs/screenshots/05-syntax-detective.png)<br><sub>**Syntax Detective** — Hands-on JSON repair puzzles with real-time syntax checking, multi-tier hints, and reward celebrations.</sub> | [![Sticker Book & Achievements](docs/screenshots/06-sticker-book.png)](docs/screenshots/06-sticker-book.png)<br><sub>**Sticker Book** — Collectible achievement stickers and idempotent XP tracking celebrating curriculum milestones.</sub> |
+
+---
+
 ## Experiences Overview
 
 ### Mode 1: Playground (Developer Utilities)
@@ -73,8 +85,8 @@ All processing, parsing, and operations execute in client memory with zero serve
 #### Sticker Book & Achievements
 - 5 unique collectible badges:
   - 🐣 **JSON Beginner:** Complete Lesson 1 ("JSON Basics").
-  - 🔎 **Bug Hunter:** Solve your first Syntax Detective case.
-  - 🧩 **Structure Explorer:** Complete the Arrays & Nested Data challenge.
+  - 🔎 **Bug Hunter:** Solve all 5 Syntax Detective cases.
+  - 🧩 **Structure Explorer:** Complete the Arrays & Nested Data lesson step in Lesson 1.
   - ✨ **Perfect Syntax:** Solve a detective case on the very first try without hints.
   - 🏆 **JSON Champion:** Complete Lesson 1 and solve all 5 detective cases.
 - Celebratory unlock modal with confetti burst.
@@ -97,8 +109,8 @@ All processing, parsing, and operations execute in client memory with zero serve
 - **Code Editor:** CodeMirror 6 via `@uiw/react-codemirror` and `@codemirror/lang-json`
 - **JSON Parsing & AST:** `jsonc-parser` (configured strictly with `disallowComments: true` and `allowTrailingComma: false`)
 - **Icons:** Lucide React
-- **Unit & Component Tests:** Vitest 5 + React Testing Library + `@testing-library/jest-dom` + `jsdom` (104 tests across 14 suites)
-- **End-to-End Tests:** Playwright 1.64 across Desktop & Mobile viewports (23 tests)
+- **Unit & Component Tests:** Vitest 5 + React Testing Library + `@testing-library/jest-dom` + `jsdom` (113 tests across 15 suites)
+- **End-to-End Tests:** Playwright 1.64 across Desktop & Mobile viewports (25 tests)
 - **Linters:** Oxlint + ESLint 10
 
 ---
@@ -126,10 +138,11 @@ npm install
 | `npm run lint` | Runs Oxlint and ESLint across the codebase |
 | `npm run typecheck` | Validates TypeScript types across source files and tests without emitting files |
 | `npm test` | Starts Vitest in interactive watch mode |
-| `npm run test:run` | Runs all Vitest unit and component tests once (104 tests) |
-| `npm run test:e2e` | Runs Playwright browser end-to-end test suite (23 tests) |
+| `npm run test:run` | Runs all Vitest unit and component tests once (113 tests across 15 suites) |
+| `npm run test:e2e` | Runs Playwright browser end-to-end test suite (25 tests) |
 | `npm run check` | Runs lint, typecheck, and unit/component tests in sequence |
 | `npm run verify:build` | Verifies production HTML asset paths match `/JotJSON/assets/` and exist in `dist` |
+| `npm run capture:screenshots` | Captures the six reproducible desktop screenshots to `docs/screenshots/` |
 
 ---
 
